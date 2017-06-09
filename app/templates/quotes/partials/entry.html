@@ -1,0 +1,29 @@
+{% macro quoteEntry(user, curchannel, quote) -%}
+<div class="card quote-card" id="{{ quote['message_id'] }}">
+  <div class="card-block quote-block">
+  <div class="card-title quote-heading">
+    <div class="avatar">
+      <img src="{{ user.avatar_url }}">
+    </div>
+    <a href="{{ request.url_root + 'quotes/' + curchannel + '/' + user.userid }}">{{ quote.user.name}}</a>
+    <div class="timestamp">
+      {{ quote.timestamp }}
+    </div>
+  </div>
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+      <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="#">Copy ID</a></li>
+      </ul>
+    </div>
+
+
+
+  <div class="quote-body">
+    {{ quote['message'] }}
+  </div>
+  </div>
+</div>
+{%- endmacro %}
