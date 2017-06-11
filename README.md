@@ -40,8 +40,9 @@ Make any changes necessary to config files, most importantly the API tokens requ
 # Discord bot config
 ./diana.conf
 
-# Flask app config.
+# Flask app config. change secret_key
 ./config/__init__.py
+
 ```
 
 
