@@ -1,19 +1,52 @@
-## Flask Boilerpate - updated!
+## Diana - A Discord Bot
 
-Starter App, powered by Real Python
+A discord bot written in Python.
 
-### Quick Start
+### INSTALL
 
-Clone the repo, then:
+Clone the repo.
+
+Ensure you have python 3.6 installed:
+
+##### Linux
 
 ```sh
-$ git remote rm origin
-$ git remote add origin <the location of my new git repository>
-$ git push -u origin master
+$ wget https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tgz
+
+$ tar xzf Python-3.6.1.tgz
+
+$ cd Python-3.6.1
+$ ./configure
+$ make altinstall
 ```
+
+##### Windows
+
+Download and install:
+https://www.python.org/ftp/python/3.6.0/python-3.6.0-amd64.exe
+
+
+#### Run INSTALL script
+
+```sh
+$ cd ~/Diana
+$ python3.6 install.py
+```
+
+### Configure
+
+Make any changes necessary to config files, most importantly the API tokens required for the bot.
+```
+# Discord bot config
+./diana.conf
+
+# Flask app config.
+./config/__init__.py
+```
+
 
 ## Run
 
 ```sh
-$ make server
+$ python3.6 run.py
 ```
