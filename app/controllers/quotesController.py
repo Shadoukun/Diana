@@ -6,26 +6,41 @@ from diana.diana import bot
 from sqlalchemy import func
 from ..models import db, User, Admin, Channel, Macro, Quote
 import sys
+
 blueprint = Blueprint('quotes', __name__)
 
 
 @blueprint.route('/quotes')
 @blueprint.route('/quotes/<channel>')
 @blueprint.route('/quotes/<channel>/<user>')
-def quote(channel=None, user=None):
+def quotes(channel=None, user=None):
 
-    if channel is None:
-        return json.dumps(data)
+    channels = [c for c in Channel.query.filter_by(channeltype='text').all()]
+    allusers = User.query.all()
+
+    if (channel is None) or (channel == 'all'):
+        channels = [c for c in Channel.query.filter_by(channeltype='text').all()]
+
+        if user:
+            users = [u for u in allusers if u.userid == user]
+            quotes = Quote.query.filter_by(userid=users[0].userid).all()
+        else:
+            users = [u for u in allusers if len(u.quotes) > 0]
+            quotes = Quote.query.all()
+
+        return render_template('quotes/quotes.html', quotes=quotes, channels=channels, users=users, curchannel=None)
 
     else:
         channels = [c for c in Channel.query.filter_by(channeltype='text').all()]
         channel = [c for c in channels if c.name == channel][0]
-        quotes = Quote.query.filter_by(channel=channel).all()
         allusers = User.query.all()
+
         if user:
             users = [u for u in allusers if u.userid == user]
+            quotes = Quote.query.filter_by(channel=channel).filter_by(userid=users[0].userid).all()
         else:
             users = [u for u in allusers if len(u.quotes) > 0]
+            quotes = Quote.query.filter_by(channel=channel).all()
 
     return render_template('quotes/quotes.html', quotes=quotes, channels=channels, users=users, curchannel=channel.name)
 

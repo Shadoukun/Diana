@@ -5,10 +5,24 @@
     <div class="avatar">
       <img src="{{ user.avatar_url }}">
     </div>
-    <a href="{{ request.url_root + 'quotes/' + curchannel + '/' + user.userid }}">{{ quote.user.name}}</a>
-    <div class="timestamp">
-      {{ quote.timestamp }}
-    </div>
+    {% if curchannel is not none %}
+    {% set user_url = request.url_root + 'quotes/' + curchannel + '/' + user.userid %}
+    {% else %}
+    {% set user_url = request.url_root + 'quotes/all/' + user.userid %}
+    {% endif %}
+
+    {% if user_url %}
+      <a href="{{ user_url }}">{{ quote.user.display_name}}</a>
+      <div class="timestamp">
+        {{ quote.timestamp }}
+      </div>
+    {% else %}
+      <a href="{{ user_url }}">{{ quote.user.display_name}}</a>
+      <div class="timestamp">
+        {{ quote.timestamp }}
+      </div>
+    {% endif %}
+
   </div>
     <div class="dropdown">
       <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">

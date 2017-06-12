@@ -14,26 +14,6 @@ class Discord:
         self.session = session
 
     @commands.command(pass_context=True, no_pm=True)
-    async def guidelines(self, ctx):
-
-        guide_counter = str(config.guidelineCounter)
-
-        message = "Discord Guideline changes\n"
-        message = message + "https://blog.discordapp.com/safety-boost-part-two-7b9069428437\n\n"
-        message = message + "That's why NSFW is at the beginning of every channel.\n"
-        message = message + "Yes its stupid.\n"
-        message = message + "No, we can't do it differently.\n\n"
-        message = message + "Any questions or discussion go in #thunderdome\n\n"
-
-        message = message + "you are the {c} person to ask so far.".format(c=guide_counter)
-
-        print(guide_counter)
-        new_count = int(guide_counter) + 1
-        config.guidelineCounter = str(new_count)
-
-        await self.bot.send_message(ctx.message.channel, message)
-
-    @commands.command(pass_context=True, no_pm=True)
     async def avatar(self, ctx):
         """: !avatar <username> | post a user's avatar."""
 
@@ -45,7 +25,6 @@ class Discord:
             embed.set_image(url=avatar_url)
             print(embed.to_dict())
             await self.bot.send_message(ctx.message.channel, embed=embed)
-
         else:
             await self.bot.send_message(ctx.message.channel, "No Results Found.")
 
@@ -58,7 +37,6 @@ class Discord:
         embed = discord.Embed(title="User Info", url=None)
 
         user = self.findUser(ctx)
-
         if user:
             joindate = str(user.joined_at).split(' ', 1)[0]
 
@@ -88,10 +66,8 @@ class Discord:
             embed.add_field(name="Permissions", value=permissions)
 
             await self.bot.send_message(channel, embed=embed)
-
         else:
             await self.bot.send_message(ctx.message.channel, "No Results Found.")
-            return
 
     @commands.command(name="add_admin", pass_context=True)
     async def add_admin(self, ctx):
@@ -106,7 +82,6 @@ class Discord:
             new_admin = db.Admin(userid)
             self.session.add(new_admin)
             self.session.commit()
-
             await self.bot.send_message(ctx.message.channel, "Admin added")
 
     @commands.command(name="remove_admin", pass_context=True)
@@ -122,7 +97,6 @@ class Discord:
                 if a.userid == userid:
                     self.session.delete(a)
                     self.session.commit()
-
                     await self.bot.send_message(ctx.message.channel, "Admin removed.")
         else:
             return

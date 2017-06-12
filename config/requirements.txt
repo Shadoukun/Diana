@@ -1,0 +1,15 @@
+discord.py
+flask
+flask-wtf
+flask-sqlalchemy
+wolframalpha
+sqlalchemy
+sqlalchemy_utils
+requests
+bs4
+cachetools
+flickr_api
+flickrapi
+wikipedia
+wordnik-py3
+libsass

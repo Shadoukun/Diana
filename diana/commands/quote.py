@@ -21,26 +21,20 @@ class Quote:
         Session = sessionmaker(bind=db.engine)
         self.session = Session()
 
-
     def _add_quote(self, message):
         # timestamp too precise.
         timestamp = message.timestamp.strftime('%m/%d/%y')
-        quote = db.Quote(message.id, message.content, timestamp, message.author.id, message.channel.id)
+
+        quote = db.Quote(
+                    message.id,
+                    message.content,
+                    timestamp,
+                    message.author.id,
+                    message.channel.id
+                    )
+
         self.session.add(quote)
         self.session.commit()
-
-    def get_channel(self, channelName):
-        '''Returns channel object from name'''
-
-        channelList = [x for x in self.bot.get_all_channels()]
-
-        for c in channelList:
-            if channelName in str(c.name):
-                channel = c
-                return channel
-            else:
-                print("no channel id")
-                return None
 
     def findUser(self, ctx):
         '''Returns user object from name'''
@@ -73,14 +67,19 @@ class Quote:
         embed.add_field(name="\u200B", value=message)
         return embed
 
-
-
-
     @commands.group(name='quote', pass_context=True, no_pm=True, invoke_without_command=True)
     async def quote(self, ctx, *args):
         # if invoked without a subcommand, return a random message. eventually.
         if ctx.invoked_subcommand is None:
-            pass
+            channel = ctx.message.channel
+            quotes = self.session.query(db.Quote). \
+                filter(db.Quote.channelid == channel.id).all()
+
+            random.shuffle(quotes)
+            user = await self.bot.get_user_info(quotes[0].userid)
+            message = quotes[0].message
+            embed = self.create_embed(user, message)
+            await self.bot.send_message(channel, embed=embed)
 
     @quote.command(name="add", pass_context=True)
     async def quote_add(self, ctx):
@@ -91,7 +90,7 @@ class Quote:
 
         # if channel not included, use current channel
         if len(message) is 1:
-            channel = self.get_channel(str(ctx.message.channel))
+            channel = ctx.message.channel
             messageID = message[0]
         else:
             return
@@ -132,8 +131,8 @@ class Quote:
         message = ctx.message.content.split(' ')[2:]
         channel = ctx.message.channel
 
-        quotes = self.session.query(db.Quote)
-        quotes = quotes.filter(db.Quote.channelid == channel.id)
+        quotes = self.session.query(db.Quote). \
+            filter(db.Quote.channelid == channel.id)
 
         if len(message) is 1:
             user = self.findUser(ctx)
@@ -144,10 +143,8 @@ class Quote:
         if user:
             userid = user.id
             quotes = quotes.filter(db.Quote.userid == userid).all()
-
             random.shuffle(quotes)
             message = quotes[0].message
-
             embed = self.create_embed(user, message)
             await self.bot.send_message(channel, embed=embed)
 
@@ -155,10 +152,7 @@ class Quote:
             quotes = quotes.all()
             random.shuffle(quotes)
             user = await self.bot.get_user_info(quotes[0].userid)
-
             message = quotes[0].message
-
-
             embed = self.create_embed(user, message)
             await self.bot.send_message(channel, embed=embed)
 
@@ -176,7 +170,7 @@ class Quote:
 
         for quote in self.db['quotes'][channel]:
             if user.id == quote['user_id']:
-                userid = quote['user_idw']
+                userid = quote['user_id']
                 break
 
         url = "http://{h}:5000/quotes/{c}/{u}".format(h=config.host, c=channel, u=userid)

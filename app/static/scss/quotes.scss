@@ -1,17 +1,13 @@
 // Quote page CSS
 
-#sidebar .card {
+
+
+
+#sidebar {
+    .card {
     margin-bottom:20px;
-}
-
-.stats-card {
-    height:250px;
-    background-color:#32353C;
-}
-
-.channel-card,
-.users-card {
     background:#111111;
+    }
 
     a {
         color:white;
@@ -19,7 +15,9 @@
         background: #32353c;
         margin-bottom:1px;
     }
+
 }
+
 
 .quote-card {
     background:#191A1C;

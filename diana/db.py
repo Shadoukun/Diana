@@ -1,6 +1,6 @@
 from sqlalchemy import *
 from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Date, Integer, String, Table
+from sqlalchemy import Column, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
@@ -44,6 +44,7 @@ class Channel(Base):
         self.channelid = channelid
         self.name = name
         self.channeltype = channeltype
+
 
 class Quote(Base):
 

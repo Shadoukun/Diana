@@ -2,6 +2,11 @@
 {% block title %}Quotes{% endblock %}
 {% block content %}
 
+<script>
+$(".nav li").removeClass("active");
+$('nav #quotes').addClass('active');
+</script>
+
 <link href="{{ url_for('static', filename='css/quotes.scss.css') }}" rel="stylesheet" type="text/css">
   <div class="container-fluid">
 
@@ -19,19 +24,29 @@
 
       <h5>Users</h5>
       <div class="card users-card">
-        <ul class="list-unstyled">
         {% for user in users %}
+          {% if curchannel is not none %}
           {% set user_url = request.url_root + 'quotes/' + curchannel + '/' + user.userid %}
-          <li class="user">
-            <a href="{{ user_url }}"><img src="{{ user.avatar_url }}">{{ user.name }}</a>
-          </li>
+          {% else %}
+          {% set user_url = request.url_root + 'quotes/all/' + user.userid %}
+          {% endif %}
+
+          {% if user_url %}
+              <a class="user" href="{{ user_url }}"><img src="{{ user.avatar_url }}">{{ user.display_name }}</a>
+          {% else %}
+              <a class="user" href="#"><img src="{{ user.avatar_url }}">{{ user.display_name }}</a>
+          {% endif %}
+
         {% endfor %}
-      </ul>
     </div>
 
   </div>
     <div class="col-8" >
+      {% if curchannel %}
       <H5>#{{ curchannel }}</h5>
+      {% else %}
+      <h5>All</h5>
+      {% endif %}
       {% for quote in quotes[::-1] %}
 
         {% for user in users if quote.user == user %}
@@ -44,8 +59,7 @@
 </div>
 <script>
 $(document).ready(function () {
-  $(".nav li").removeClass("active");//this will remove the active class from
-                                     //previously active menu item
+  $(".nav li").removeClass("active");
   $('nav #Quotes').addClass('active');
 });
 </script>

@@ -1,32 +1,38 @@
 import logging
 
 from flask import Flask, request as req
+from flask_wtf import CSRFProtect
+from app.controllers import indexController, quotesController, macrosController, statsController
 
-from app.controllers import pages
-from app.controllers import quotesController
 from sassutils.wsgi import SassMiddleware
-# from sassutils.builder import build_directory
+from sassutils.builder import build_directory
 
 
-def create_app(config_filename):
+def create_app(config_filename, debug=False):
     app = Flask(__name__)
     app.config.from_object(config_filename)
+    log = logging.getLogger('werkzeug')
+    CSRFProtect(app)
 
-    app.register_blueprint(pages.blueprint)
+    app.register_blueprint(indexController.blueprint)
     app.register_blueprint(quotesController.blueprint)
-    app.logger.setLevel(logging.NOTSET)
+    app.register_blueprint(macrosController.blueprint)
+    app.register_blueprint(statsController.blueprint)
 
-    app.wsgi_app = SassMiddleware(app.wsgi_app, {
-        'app': ('static/scss', 'static/css', 'static/css')
-    })
+    if debug:
+        log.setLevel(logging.NOTSET)
+        app.logger.setLevel(logging.NOTSET)
 
-    # build_directory("app/static/sass", "app/static/css")
+        # compile SCSS to CSS with every request. useful for updating styles.
+        app.wsgi_app = SassMiddleware(app.wsgi_app, {
+            'app': ('static/scss', 'static/css', 'static/css')
+            })
 
-    @app.after_request
-    def log_response(resp):
-        app.logger.info("{} {} {}\n{}".format(
-            req.method, req.url, req.data, resp)
-        )
-        return resp
+    else:
+        log.setLevel(logging.INFO)
+        app.logger.setLevel(logging.INFO)
+
+        # compile once at start.
+        build_directory("app/static/scss", "app/static/css")
 
     return app
