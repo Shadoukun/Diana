@@ -4,14 +4,15 @@ from app.forms import CommandForm
 import json
 import discord
 import sys
-from ..models import db, User, Admin, Channel, Macro, Quote
-
+from ..models import db, User, Admin, Channel, Macro, Quote, FlaskUser
+from flask_login import login_required
 
 blueprint = Blueprint('macros', __name__)
 
 
 @blueprint.route('/macros')
 @blueprint.route('/macros/<int:macro_id>')
+@login_required
 def macros(macro_id=None):
     form = CommandForm(request.form)
     macros = Macro.query.all()
@@ -22,6 +23,7 @@ def macros(macro_id=None):
     else:
         return render_template('macros/macros.html', macros=macros, form=form)
 
+@login_required
 @blueprint.route('/macros/<int:macro_id>/<string:operation>', methods=['POST', 'GET'])
 @blueprint.route('/macros/<string:operation>', methods=['POST', 'GET'])
 def edit_macros(operation, macro_id=None):

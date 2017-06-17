@@ -1,8 +1,9 @@
 from sqlalchemy import *
 from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Integer, String, Table
+from sqlalchemy import Column, Integer, String, Table, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+from datetime import datetime
 
 engine = create_engine('sqlite:///database.db', echo=False)
 Base = declarative_base()
@@ -12,10 +13,12 @@ channel_members = Table('channel_members',
                         Base.metadata,
                         Column('channel_id', Integer, ForeignKey('channels.channelid')),
                         Column('user_id', Integer, ForeignKey('users.userid'))
-                        )
+                       )
 
 
 class User(Base):
+    """Users"""
+
     __tablename__ = "users"
 
     userid = Column(String, primary_key=True)
@@ -32,6 +35,8 @@ class User(Base):
 
 
 class Channel(Base):
+    """Server channels"""
+
     __tablename__ = "channels"
 
     channelid = Column(String, primary_key=True)
@@ -39,6 +44,7 @@ class Channel(Base):
     channeltype = Column(String)
     members = relationship("User", secondary=channel_members, backref="channels")
     quotes = relationship("Quote", backref=backref("channel", lazy="joined"))
+    stats = relationship("MessageStat", backref=backref("channel", lazy="joined"))
 
     def __init__(self, channelid, name, channeltype):
         self.channelid = channelid
@@ -47,6 +53,7 @@ class Channel(Base):
 
 
 class Quote(Base):
+    """User quotes"""
 
     __tablename__ = "quotes"
 
@@ -54,7 +61,7 @@ class Quote(Base):
     message = Column(String)
     timestamp = Column(String)
     userid = Column(String, ForeignKey('users.userid'))
-    channelid = Column(Integer, ForeignKey('channels.channelid'))
+    channelid = Column(String, ForeignKey('channels.channelid'))
 
     def __init__(self, messageid, message, timestamp, userid, channelid):
         self.messageid = messageid
@@ -65,6 +72,7 @@ class Quote(Base):
 
 
 class Admin(Base):
+    """Chat admins"""
 
     __tablename__ = "admins"
 
@@ -77,6 +85,7 @@ class Admin(Base):
 
 
 class Macro(Base):
+    """Macro commands"""
 
     __tablename__ = "macros"
 
@@ -91,9 +100,56 @@ class Macro(Base):
         self.modified_flag = modified_flag
 
 
+class MessageStat(Base):
+    """Total messages sent over time (Hourly)"""
+
+    __tablename__ = "message_stats"
+
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    messagecount = Column(Integer)
+    channelid = Column(String, ForeignKey('channels.channelid'))
+
+    def __init__(self, timestamp, messagecount, channelid):
+        self.timestamp = timestamp
+        self.messagecount = messagecount
+        self.channelid = channelid
+
+class FlaskUser(Base):
+    """An admin user capable of creating macros.
+
+    :param str email: email address of user
+    :param str password: encrypted password for the user
+
+    """
+    __tablename__ = 'user'
+
+    username = Column(String, primary_key=True)
+    password = Column(String)
+    authenticated = Column(Boolean, default=False)
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.username
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
+
 # ---- Helper Functions ----
 
 def create_database(base, engine):
+    """creates database"""
+
     base.metadata.create_all(engine)
 
 

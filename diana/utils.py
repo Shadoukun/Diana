@@ -35,6 +35,7 @@ def makeMacro(cmd, response):
         nonlocal response
         await ctx.bot.send_message(ctx.message.channel, response)
 
+
     # function for macros with multiple responses.
     # Chooses a response at random.
     async def _multimacro(ctx):

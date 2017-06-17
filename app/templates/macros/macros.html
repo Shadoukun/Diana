@@ -1,12 +1,25 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Quotes{% endblock %}
+
+{% block css %}
+<link href="{{ url_for('static', filename='css/macros.scss.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block scripts %}
+<script>
+$( document ).ready(function() {
+$(".nav li").removeClass("active");
+$('nav #macros').addClass('active');
+});
+</script>
+{% endblock %}
+
 {% block content %}
 
 {% if not current_macro %}
 {% set current_macro = 0 %}
 {% endif %}
 
-<link href="{{ url_for('static', filename='css/macros.scss.css') }}" rel="stylesheet" type="text/css">
 {% with messages = get_flashed_messages() %}
    {% if messages %}
       {% for message in messages %}
@@ -15,10 +28,6 @@
    {% endif %}
 {% endwith %}
 
-<script>
-$(".nav li").removeClass("active");
-$('nav #macros').addClass('active');
-</script>
 
   <div class="container-fluid">
 

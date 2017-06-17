@@ -45,7 +45,17 @@ h1 {
 
     }
 
+    .login, .logout {
+        color: rgba(255,255,255,.75);
+
+        &:focus, &:hover {
+          text-decoration: none;
+        }
+    }
+
+
 }
+
 
 
 /* Set the fixed height of the footer here */

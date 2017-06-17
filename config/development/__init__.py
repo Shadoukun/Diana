@@ -1,6 +1,6 @@
 import os
 
-DEBUG = True
+DEBUG = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = 'my precious'
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))

@@ -73,7 +73,7 @@ def _getQuoteList(data, channel, user=None):
 
     if user:
         quote_list = []
-
+        
         for q in quotes:
             if user == q['user_id']:
                 quote_list.append(q)

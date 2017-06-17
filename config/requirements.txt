@@ -1,7 +1,8 @@
 discord.py
 flask
-flask-wtf
+flask-bcrypt
 flask-sqlalchemy
+flask-wtf
 wolframalpha
 sqlalchemy
 sqlalchemy_utils
@@ -13,3 +14,4 @@ flickrapi
 wikipedia
 wordnik-py3
 libsass
+arrow

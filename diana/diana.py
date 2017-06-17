@@ -3,23 +3,18 @@ import discord
 import asyncio
 import os
 import glob
-import importlib
-import wolframalpha
-import cmd
-from inspect import getmembers, isfunction
 from .config import config
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, event
 from sqlalchemy_utils import database_exists
 import diana.utils as utils
-import os
+from datetime import datetime
+import math
 
 from diana.db import *
 
 bot = commands.Bot(command_prefix='!', description="Diana Ross")
 Session = sessionmaker(bind=engine)
 session = Session()
-
 
 # -- Load commands. --
 path = os.path.join(os.getcwd(), "diana", "commands", "*.py")
@@ -123,16 +118,48 @@ async def update_existing_users_task():
 
 
 @bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    await bot.process_commands(message)
+
+    # add row to message_stats every hour
+    bot.message_counter += 1
+    timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
+    print(timediff)
+
+    if timediff >= 1:
+        newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
+        stat = MessageStat(newtime, bot.message_counter, message.channel.id)
+        session.add(stat)
+        session.commit()
+        bot.message_counter = 0
+        bot.time_check = datetime.utcnow()
+
+    # if several hours have passed, insert extra empty values
+        if timediff > 1:
+            for _ in range(int(timediff) - 1):
+                newtime = message.timestamp.replace(hour=newtime.hour - 1, minute=0, second=0, microsecond=0)
+                stat = MessageStat(newtime, bot.message_counter, message.channel.id)
+                session.add(stat)
+                session.commit()
+
+
+@bot.event
 async def on_ready():
+
+    # Create DB if its missing.
     if not database_exists('sqlite:///database.db'):
         create_database(Base, engine)
         populate_database(session, bot)
         print("database Created.")
 
+    # Add Macros
     try:
         utils.addMacros(bot, session)
     except:
-        print("No Macros. 2")
+        pass
 
     # Create Background Tasks
     bot.loop.create_task(update_macros_task())
@@ -140,6 +167,9 @@ async def on_ready():
     bot.loop.create_task(add_users_task())
     bot.loop.create_task(update_existing_users_task())
 
+    # current time for stats comparison.
+    bot.time_check = datetime.utcnow()
+    bot.message_counter = 0
 
     print('Logged in as ' + bot.user.name)
     print(bot.user.id)
