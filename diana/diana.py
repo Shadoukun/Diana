@@ -77,13 +77,14 @@ class Diana(commands.Bot):
 
             # if several hours have passed, insert extra empty values
             if timediff > 1:
+                newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
+
                 for _ in range(int(timediff) - 1):
-                    newtime = message.timestamp.replace(hour=newtime.hour - 1, minute=0, second=0, microsecond=0)
+                    empy_hour = message.timestamp.replace(hour=newtime.hour - 1, minute=0, second=0, microsecond=0)
                     stat = MessageStat(newtime, self.message_counter, message.channel.id)
                     session.add(stat)
                     session.commit()
 
-            newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
             stat = MessageStat(newtime, self.message_counter, message.channel.id)
             session.add(stat)
             session.commit()

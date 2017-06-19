@@ -2,6 +2,7 @@ import sys
 import json
 import itertools
 import arrow
+import discord
 from collections import namedtuple  
 from sqlalchemy.sql.expression import func
 from flask import render_template, Blueprint, request
@@ -36,14 +37,19 @@ def _quoteStats():
 
     userlist = dict()
     quotes = Quote.query.all()
-
+    
     for quote in quotes:
-        if quote.user.display_name:
-            user = quote.user.display_name
+        if quote.user:
+            if quote.user.display_name:
+                user = quote.user.display_name
             
+            # weird issue if user left server.
+            else:
+                user = discord.utils.get(message.server.members, id=quote.userid).display_name
+
         else:
             continue
-        
+
         if user in userlist.keys():
             userlist[user]['quotes'].append(quote)
         else:

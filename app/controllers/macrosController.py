@@ -6,13 +6,13 @@ from flask.views import MethodView
 from flask_login import login_required
 from app.forms import CommandForm
 
+from app import db
 from app.models import User
 from app.models import Admin
 from app.models import Channel
 from app.models import Macro
 from app.models import Quote
 from app.models import FlaskUser
-
 
 blueprint = Blueprint('macros', __name__)
 
@@ -42,7 +42,7 @@ def edit_macros(operation, macro_id=None):
 
         if operation == 'new':
             print("New Macro", file=sys.stderr)
-            macro = Macro(form.command.data, form.response.data)
+            macro = Macro(form.command.data, form.response.data, 1)
             db.session.add(macro)
             db.session.commit()
 
@@ -50,6 +50,7 @@ def edit_macros(operation, macro_id=None):
             macro = Macro.query.filter_by(id=macro_id).first()
             macro.command = form['command'].data
             macro.response = form['response'].data
+            macro.modified_flag = 1
             db.session.commit()
 
     if (request.method == 'GET') and (macro_id):

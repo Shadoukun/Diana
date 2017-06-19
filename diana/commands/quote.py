@@ -33,8 +33,19 @@ class Quote:
                     message.channel.id
                     )
 
-        self.session.add(quote)
-        self.session.commit()
+
+        if self.session.query(db.User).filter_by(userid=message.author.id).count():
+            self.session.add(quote)
+            self.session.commit()
+
+        # Add user to userlist if missing (user left the server)
+        else:
+            user = message.author
+            newuser = db.User(user.id, user.name, user.display_name, user.avatar_url)
+
+            self.session.add(newuser)
+            self.session.add(quote)            
+            self.session.commit()
 
     def findUser(self, ctx):
         '''Returns user object from name'''
@@ -119,6 +130,7 @@ class Quote:
         #    return
 
         quotes = self.session.query(db.Quote).filter(db.Quote.channelid == channel.id)
+       
         for quote in quotes:
             if messageid == quote.messageid:
                 self.session.delete(quote)
