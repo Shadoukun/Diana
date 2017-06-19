@@ -38,7 +38,12 @@ def _quoteStats():
     quotes = Quote.query.all()
 
     for quote in quotes:
-        user = quote.user.display_name
+        if quote.user.display_name:
+            user = quote.user.display_name
+            
+        else:
+            continue
+        
         if user in userlist.keys():
             userlist[user]['quotes'].append(quote)
         else:
