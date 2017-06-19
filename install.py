@@ -20,8 +20,9 @@ if platform == "Windows":
     # 2to3 location
     twoToThree = "C:\\Python36\\Tools\\scripts\\2to3.py"
 
+requirements = "config/requirements.txt"
 # install packages
-pkg_install = subprocess.call(["pip", "install", "-r", "requirements.txt"], shell=True)
+pkg_install = subprocess.call(["pip", "install", "-r", requirements], shell=True)
 
 # convert flickr_api to python3
 flickr_api = site_packages + "\\flickr_api"

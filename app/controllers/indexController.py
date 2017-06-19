@@ -1,8 +1,15 @@
-from flask import render_template, Blueprint, request
-from app.forms import *
-from diana.diana import bot
-from ..models import db, User, Admin, Channel, Macro, Quote
 import sys
+from flask import render_template, Blueprint, request
+#from app.forms import *
+from diana.diana import bot
+from app import db
+
+from app.models import User
+from app.models import Admin
+from app.models import Channel
+from app.models import Macro
+from app.models import Quote
+from app.models import FlaskUser
 
 blueprint = Blueprint('index', __name__)
 

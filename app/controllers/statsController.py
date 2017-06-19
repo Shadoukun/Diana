@@ -1,13 +1,20 @@
-from flask import render_template, Blueprint, request
-from sqlalchemy.sql.expression import func
-from app.forms import *
-from ..models import db, User, Admin, Channel, Macro, Quote, MessageStat
 import sys
 import json
 import itertools
 import arrow
 from collections import namedtuple  
+from sqlalchemy.sql.expression import func
+from flask import render_template, Blueprint, request
+from app import db
+from app.forms import *
 
+from app.models import User
+from app.models import Admin
+from app.models import Channel
+from app.models import Macro
+from app.models import Quote
+from app.models import FlaskUser
+from app.models import MessageStat
 
 
 blueprint = Blueprint('stats', __name__)

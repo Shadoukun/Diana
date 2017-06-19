@@ -1,11 +1,18 @@
+import sys
+import discord
+import json
 from flask import render_template, Blueprint, request, redirect, url_for, flash
 from flask.views import MethodView
-from app.forms import CommandForm
-import json
-import discord
-import sys
-from ..models import db, User, Admin, Channel, Macro, Quote, FlaskUser
 from flask_login import login_required
+from app.forms import CommandForm
+
+from app.models import User
+from app.models import Admin
+from app.models import Channel
+from app.models import Macro
+from app.models import Quote
+from app.models import FlaskUser
+
 
 blueprint = Blueprint('macros', __name__)
 

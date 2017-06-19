@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm as Form
 from wtforms import TextField, PasswordField, StringField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length, Required
 from flask_bcrypt import check_password_hash
-from .models import FlaskUser
+
+from app.models import FlaskUser
 
 
 class RegisterForm(Form):

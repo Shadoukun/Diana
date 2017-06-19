@@ -1,6 +1,7 @@
 discord.py
 flask
 flask-bcrypt
+flask_login
 flask-sqlalchemy
 flask-wtf
 wolframalpha
@@ -8,6 +9,7 @@ sqlalchemy
 sqlalchemy_utils
 requests
 bs4
+lxml
 cachetools
 flickr_api
 flickrapi

@@ -1,7 +1,7 @@
+from app import db  ## does not work here
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-db = SQLAlchemy()
 
 channel_members = db.Table('channel_members',
                            db.Column('channel_id', db.Integer,

@@ -68,4 +68,4 @@ def addMacros(bot, session):
         if m.command not in bot.commands.keys():
             func = makeMacro(m.command, m.response)
             cmd = commands.Command(name=m.command, callback=func, pass_context=True, no_pm=True)
-            bot.add_command(cmd)
+            return cmd

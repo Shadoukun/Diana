@@ -6,6 +6,7 @@ from functools import lru_cache
 from discord.ext import commands
 from cachetools import TTLCache
 from diana import utils
+import lxml
 
 
 class Gelbooru:
@@ -43,7 +44,7 @@ class Gelbooru:
 
         # Search
         r = self.session.get(self.url + message + "&pid=" + str(pageid))
-        soup = BeautifulSoup(r.content, "lxml")
+        soup = BeautifulSoup(r.content, "html.parser")
         posts = soup.find_all("post")
         post = await self.getRandomPost(posts, count)
 
@@ -89,7 +90,7 @@ class Gelbooru:
         r = self.session.get(self.url + message)
 
         if r.status_code == 200:
-            soup = BeautifulSoup(r.content, "lxml")
+            soup = BeautifulSoup(r.content, "html.parser")
             count = int(soup.find("posts")['count'])
 
             if count:
