@@ -97,7 +97,6 @@ def loadMacros(bot):
 def checkStats(bot, message):
 
     timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
-    print(timediff)
     if timediff >= 1:
         return True
 
@@ -113,10 +112,8 @@ def addStats(bot, message):
             empy_hour = message.timestamp.replace(hour=newtime.hour - diff, minute=0, second=0, microsecond=0)
             empty_stat = MessageStat(empty_hour, 0, message.channel.id)
             bot.session.add(empty_stat)
-            print("empty added")
             diff = diff - 1
 
     stat = MessageStat(newtime, bot.message_counter, message.channel.id)
     bot.session.add(stat)
     bot.session.commit()
-    print("added")
