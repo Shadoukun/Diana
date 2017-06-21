@@ -155,8 +155,8 @@ class MacroResponse(Base):
     response = Column(String)
 
     def __init__(self, trigger, response):
-        self.command = command
         self.trigger = trigger
+        self.response = response
 
 
 

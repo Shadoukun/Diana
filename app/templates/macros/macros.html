@@ -1,20 +1,8 @@
-{% extends 'layouts/main.html' %}
-{% block title %}Quotes{% endblock %}
+{% extends 'macros/index.html' %}
 
-{% block css %}
-<link href="{{ url_for('static', filename='css/macros.scss.css') }}" rel="stylesheet" type="text/css">
-{% endblock %}
 
-{% block scripts %}
-<script>
-$( document ).ready(function() {
-$(".nav li").removeClass("active");
-$('nav #macros').addClass('active');
-});
-</script>
-{% endblock %}
 
-{% block content %}
+{% block macropage %}
 
 {% if not current_macro %}
 {% set current_macro = 0 %}
@@ -30,6 +18,13 @@ $('nav #macros').addClass('active');
 
 
   <div class="container-fluid">
+
+    <script>
+      $( document ).ready(function() {
+      $("#macro_nav li").removeClass("active");
+      $('#macro_nav #macros').addClass('active');
+      });
+    </script>
 
   <div class="row" id="main">
     <div class="col-4" id="sidebar">

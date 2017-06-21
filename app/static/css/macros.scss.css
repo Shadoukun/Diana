@@ -31,3 +31,7 @@ textarea, .form-control {
     border-bottom: 1px solid #2761CF;
     background: none;
     color: white; }
+
+#macro_nav {
+  margin-left: 15px;
+  margin-bottom: 10px; }

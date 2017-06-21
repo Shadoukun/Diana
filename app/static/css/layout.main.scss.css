@@ -12,6 +12,9 @@ h2,
 h1 {
   color: white; }
 
+.ml-6 {
+  margin-left: 5rem; }
+
 /* Wrapper for page content to push down footer */
 #wrap {
   min-height: 100%;
@@ -47,7 +50,7 @@ h1 {
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 #wrap > .container {
-  padding: 60px 15px 0; }
+  /* padding: 60px 15px 0; */ }
 
 .container .credit {
   margin: 20px 0; }

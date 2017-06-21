@@ -133,3 +133,15 @@ class FlaskUser(db.Model):
         return False
 
 
+class MacroResponse(db.Model):
+    """Automatic response to keywords"""
+
+    __tablename__ = "responses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    trigger = db.Column(db.String, unique=True)
+    response = db.Column(db.String)
+
+    def __init__(self, trigger, response):
+        self.trigger = trigger
+        self.response = response

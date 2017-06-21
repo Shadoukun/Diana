@@ -13,12 +13,18 @@ from app.models import Channel
 from app.models import Macro
 from app.models import Quote
 from app.models import FlaskUser
+from app.models import MacroResponse
 
 blueprint = Blueprint('macros', __name__)
 
-
 @blueprint.route('/macros')
-@blueprint.route('/macros/<int:macro_id>')
+def index():
+    return render_template('macros/index.html')
+
+
+
+@blueprint.route('/macros/macros')
+@blueprint.route('/macros/macros/<int:macro_id>')
 @login_required
 def macros(macro_id=None):
     form = CommandForm(request.form)
@@ -31,8 +37,8 @@ def macros(macro_id=None):
         return render_template('macros/macros.html', macros=macros, form=form)
 
 @login_required
-@blueprint.route('/macros/<int:macro_id>/<string:operation>', methods=['POST', 'GET'])
-@blueprint.route('/macros/<string:operation>', methods=['POST', 'GET'])
+@blueprint.route('/macros/macros/<int:macro_id>/<string:operation>', methods=['POST', 'GET'])
+@blueprint.route('/macros/macros/<string:operation>', methods=['POST', 'GET'])
 def edit_macros(operation, macro_id=None):
     if request.method == 'POST':
         form = CommandForm(request.form)
@@ -60,3 +66,47 @@ def edit_macros(operation, macro_id=None):
             db.session.commit()
 
     return redirect(url_for('macros.macros'))
+
+
+@blueprint.route('/macros/responses')
+@blueprint.route('/macros/responses/<int:resp_id>')
+@login_required
+def responses(resp_id=None):
+    form = CommandForm(request.form)
+    response_list = MacroResponse.query.all()
+
+    if resp_id:
+        resp = MacroResponse.query.filter_by(id=resp_id).first()
+        return render_template('macros/responses.html', responses=response_list, form=form, current_resp=resp)
+    else:
+        return render_template('macros/responses.html', responses=response_list, form=form)
+
+@login_required
+@blueprint.route('/macros/responses/<int:resp_id>/<string:operation>', methods=['POST', 'GET'])
+@blueprint.route('/macros/responses/<string:operation>', methods=['POST', 'GET'])
+def edit_responses(operation, resp_id=None):
+    if request.method == 'POST':
+        form = CommandForm(request.form)
+
+        if not form.validate_on_submit():
+            flash(form.errors)
+
+        if operation == 'new':
+            print("New Response", file=sys.stderr)
+            resp = MacroResponse(form.command.data, form.response.data)
+            db.session.add(resp)
+            db.session.commit()
+
+        if operation == 'edit':
+            resp = MacroResponse.query.filter_by(id=resp_id).first()
+            resp.trigger = form['command'].data
+            resp.response = form['response'].data
+            db.session.commit()
+
+    if (request.method == 'GET') and (resp_id):
+
+        if operation == 'delete':
+            MacroResponse.query.filter_by(id=resp_id).delete()
+            db.session.commit()
+
+    return redirect(url_for('macros.responses'))
