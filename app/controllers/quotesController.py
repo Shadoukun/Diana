@@ -21,71 +21,68 @@ blueprint = Blueprint('quotes', __name__)
 @blueprint.route('/quotes')
 @blueprint.route('/quotes/<channel>')
 @blueprint.route('/quotes/<channel>/<user>')
-def quotes(channel=None, user=None):
+def quotes(channel='all', user=None):
+
+    # If no channel is given.
+    if channel == 'all':
+        channels, users, quotes = _getQuotes(user)
+
+        return render_template('quotes/quotes.html',
+                               quotes=quotes,
+                               channels=channels,
+                               users=users,
+                               curchannel=None)
+
+    # if channel is given
+    else:
+        channels, users, quotes = _getChannelQuotes(channel, user)
+        channel = [c for c in channels if c.name == channel][0]
+
+    return render_template('quotes/quotes.html',
+                           quotes=quotes,
+                           channels=channels,
+                           users=users,
+                           curchannel=channel.name)
+
+
+# All code below sucks.
+
+
+def _getQuotes(user=None):
+    '''Returns a complete list of channels, users, and quotes
+       Or a user filtered list'''
 
     channels = [c for c in Channel.query.filter_by(channeltype='text').filter(Channel.quotes.any()).all()]
-    allusers = User.query.filter(User.quotes.any()).all()
+    allusers = User.query.filter(User.quotes.any())
 
-    if (channel is None) or (channel == 'all'):
-        channels = [c for c in Channel.query.filter_by(channeltype='text').filter(Channel.quotes.any()).all()]
-
-        if user:
-            users = [u for u in allusers if u.userid == user]
-            quotes = Quote.query.filter_by(userid=users[0].userid).all()
-        else:
-            users = [u for u in allusers if len(u.quotes) > 0]
-            quotes = Quote.query.all()
-
-        return render_template('quotes/quotes.html', quotes=quotes, channels=channels, users=users, curchannel=None)
-
-    else:
-        channels = [c for c in Channel.query.filter_by(channeltype='text').all()]
-        channel = [c for c in channels if c.name == channel][0]
-        allusers = User.query.all()
-
-        if user:
-            users = [u for u in allusers if u.userid == user]
-            quotes = Quote.query.filter_by(channel=channel).filter_by(userid=users[0].userid).all()
-        else:
-            users = [u for u in allusers if len(u.quotes) > 0]
-            quotes = Quote.query.filter_by(channel=channel).all()
-
-    return render_template('quotes/quotes.html', quotes=quotes, channels=channels, users=users, curchannel=channel.name)
-
-
-def _getUserList(quotes):
-    user_list = []
-    _user_list = []
-
-    for quote in quotes:
-        try:
-            # Update User details
-            user = discord.utils.get(bot.get_all_members(), id=quote["user_id"])
-            if user:
-                quote['username'] = user.display_name
-                quote['avatar'] = user.avatar_url
-            if quote['username'] not in _user_list:
-                    _user_list.append(quote['username'])
-                    user_list.append({"user_id": quote['user_id'],
-                                      "username": quote['username'],
-                                      "avatar": quote['avatar']})
-        except:
-            continue
-
-    return user_list
-
-
-def _getQuoteList(data, channel, user=None):
-
-    quotes = data['quotes'][channel]
-
+     # If a user is given
     if user:
-        quote_list = []
+        users = [u for u in allusers.all() if u.userid == user]
+        quotes = Quote.query.filter_by(userid=users[0].userid).all()
 
-        for q in quotes:
-            if user == q['user_id']:
-                quote_list.append(q)
-        return quote_list
-
+    # No user given
     else:
-        return quotes
+        users = [u for u in allusers.all() if len(u.quotes) > 0]
+        quotes = Quote.query.all()
+
+    return channels, users, quotes
+
+
+def _getChannelQuotes(channel, user=None):
+    '''Returns a filtered list of channels, users, and quotes
+       or a channel + user filtered list'''
+
+    channels = [c for c in Channel.query.filter_by(channeltype='text').filter(Channel.quotes.any()).all()]
+    allusers = User.query.filter(User.quotes.any())
+
+    # If a user is given
+    if user:
+        users = [u for u in allusers.all() if u.userid == user]
+        quotes = Quote.query.filter_by(channel=channel).filter_by(userid=users[0].userid).all()
+
+    # No user is given.
+    else:
+        users = [u for u in allusers if len(u.quotes) > 0]
+        quotes = Quote.query.filter_by(channel=channel).all()
+
+    return channels, users, quotes

@@ -6,23 +6,6 @@ from flask_bcrypt import check_password_hash
 from app.models import FlaskUser
 
 
-class RegisterForm(Form):
-    name = TextField(
-        'Username', validators=[DataRequired(), Length(min=6, max=25)]
-    )
-    email = TextField(
-        'Email', validators=[DataRequired(), Length(min=6, max=40)]
-    )
-    password = PasswordField(
-        'Password', validators=[DataRequired(), Length(min=6, max=40)]
-    )
-    confirm = PasswordField(
-        'Repeat Password',
-        [DataRequired(),
-         EqualTo('password', message='Passwords must match')]
-    )
-
-
 class LoginForm(Form):
     username = TextField('Username', [Required()])
     password = PasswordField('Password', [Required()])
@@ -47,12 +30,6 @@ class LoginForm(Form):
 
         self.user = user
         return True
-
-
-class ForgotForm(Form):
-    email = TextField(
-        'Email', validators=[DataRequired(), Length(min=6, max=40)]
-    )
 
 
 class CommandForm(Form):

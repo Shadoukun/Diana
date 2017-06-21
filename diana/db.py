@@ -133,7 +133,7 @@ class FlaskUser(Base):
         return True
 
     def get_id(self):
-        """Return the email address to satisfy Flask-Login's requirements."""
+        """Return the username to satisfy Flask-Login's requirements."""
         return self.username
 
     def is_authenticated(self):
@@ -143,6 +143,21 @@ class FlaskUser(Base):
     def is_anonymous(self):
         """False, as anonymous users aren't supported."""
         return False
+
+
+class MacroResponse(Base):
+    """Automatic response to keywords"""
+
+    __tablename__ = "responses"
+
+    id = Column(Integer, primary_key=True)
+    trigger = Column(String, unique=True)
+    response = Column(String)
+
+    def __init__(self, trigger, response):
+        self.command = command
+        self.trigger = trigger
+
 
 
 # ---- Helper Functions ----

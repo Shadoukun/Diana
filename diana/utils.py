@@ -1,5 +1,11 @@
+import os
+import glob
+import math
+import random
+import time
 from discord.ext import commands
-import diana.db as db
+
+from diana.db import *
 
 def parse_message(message, tags=None):
     """function to check and parse incoming messages
@@ -51,21 +57,66 @@ def makeMacro(cmd, response):
         return _macro
 
 
-def editMacro(bot, session, macro):
+def editMacro(bot, macro):
     # Removes eddited macro and readds it.
     # Should probably have a more precise method for this.
 
     if macro.command in bot.commands.keys():
-        bot.remove_command(macro)
+        bot.remove_command(macro.command)
 
-    addMacros(bot, session)
-    print("Macro Edited.")
+    func = makeMacro(macro.command, macro.response)
+    cmd = commands.Command(name=macro.command, callback=func, pass_context=True, no_pm=True)
+    bot.add_command(cmd)
 
 
-def addMacros(bot, session):
-    macros = session.query(db.Macro).all()
+def loadCommands(bot):
+    path = os.path.join(os.getcwd(), "diana", "commands", "*.py")
+    cmd_path = glob.glob(path, recursive=True)
+
+    for c in cmd_path:
+        # Skip commands/files that contain with __
+        if "__" in c:
+            continue
+
+        name = os.path.basename(c)[:-3]
+        bot.load_extension("diana.commands." + name)
+
+
+def loadMacros(bot):
+    macros = bot.session.query(Macro).all()
+
+    if len(macros) < 1:
+        return
+
     for m in macros:
         if m.command not in bot.commands.keys():
             func = makeMacro(m.command, m.response)
             cmd = commands.Command(name=m.command, callback=func, pass_context=True, no_pm=True)
-            return cmd
+            bot.add_command(cmd)
+
+def checkStats(bot, message):
+
+    timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
+    print(timediff)
+    if timediff >= 1:
+        return True
+
+
+def addStats(bot, message):
+    timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
+    newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
+    if timediff > 1:
+        last_stat = bot.session.query(MessageStat).order_by(MessaageStat.id.desc()).first()
+        diff = abs(message.timestamp-last_stat.timestamp) - 1
+
+        while diff:
+            empy_hour = message.timestamp.replace(hour=newtime.hour - diff, minute=0, second=0, microsecond=0)
+            empty_stat = MessageStat(empty_hour, 0, message.channel.id)
+            bot.session.add(empty_stat)
+            print("empty added")
+            diff = diff - 1
+
+    stat = MessageStat(newtime, bot.message_counter, message.channel.id)
+    bot.session.add(stat)
+    bot.session.commit()
+    print("added")
