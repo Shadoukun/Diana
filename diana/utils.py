@@ -105,7 +105,7 @@ def addStats(bot, message):
     timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
     newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
     if timediff > 1:
-        last_stat = bot.session.query(MessageStat).order_by(MessaageStat.id.desc()).first()
+        last_stat = bot.session.query(MessageStat).order_by(MessageStat.id.desc()).first()
         diff = abs(message.timestamp-last_stat.timestamp) - 1
 
         while diff:
