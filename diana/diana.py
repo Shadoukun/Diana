@@ -65,8 +65,8 @@ class Diana(commands.Bot):
         message = re.sub("[!@#$%^&*()[]{};:,./<>?\|`~-=_+]", " ", message.content)
 
         # check for trigger in message
-        for word in message.split(" "):
-            word = word.lower()
+        words = [w.lower() for w in message.split(" ")]
+        for word in words:
             if word in self.responses:
                 resp = self.responses[word].split('\n')
 
