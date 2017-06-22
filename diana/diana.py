@@ -9,14 +9,14 @@ from sqlalchemy_utils import database_exists
 import diana.utils as utils
 from diana.db import *
 from diana.tasks import *
-
+import arrow
 class Diana(commands.Bot):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.session = session
-        self.time_check = datetime.utcnow()
+        self.time_check = arrow.utcnow()
         self.message_counter = 0
 
         self.responses = {}
@@ -63,6 +63,7 @@ class Diana(commands.Bot):
         for word in message.split(" "):
             if word in self.responses:
                 await self.send_message(channel, self.responses[word])
+                return
 
 Session = sessionmaker(bind=engine)
 session = Session()

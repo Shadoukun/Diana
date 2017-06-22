@@ -4,6 +4,8 @@ import math
 import random
 import time
 from discord.ext import commands
+import arrow
+from dateutil import tz
 
 from diana.db import *
 
@@ -95,25 +97,38 @@ def loadMacros(bot):
             bot.add_command(cmd)
 
 def checkStats(bot, message):
+    timestamp = arrow.get(message.timestamp).floor('hour')
+    time_check = bot.time_check.floor('hour')
 
-    timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
+    timediff = int((timestamp - time_check).total_seconds() / 3600)
+    print(timediff)
+
     if timediff >= 1:
         return True
 
 
 def addStats(bot, message):
-    timediff = math.floor((message.timestamp - bot.time_check).seconds / 3600)
-    newtime = message.timestamp.replace(minute=0, second=0, microsecond=0)
+    """Add hourly message stats to database."""
+
+    # Calculate difference between last stats check and now.
+    timestamp = arrow.get(message.timestamp).floor('hour')
+    time_check = bot.time_check.floor('hour')
+
+    timediff = int((timestamp - time_check).total_seconds() / 3600)
+
+    # If time difference is greater than one hour, add extra empty hours first.
     if timediff > 1:
         last_stat = bot.session.query(MessageStat).order_by(MessageStat.id.desc()).first()
-        diff = abs(message.timestamp-last_stat.timestamp) - 1
-
+        last_stat = arrow.get(last_stat.timestamp)
+        diff = abs(timestamp - last_stat).total_seconds() / 3600
+        diff -= 1
         while diff:
-            empy_hour = message.timestamp.replace(hour=newtime.hour - diff, minute=0, second=0, microsecond=0)
+            empty_hour = timestamp.replace(hours=timestamp.hour - diff)
             empty_stat = MessageStat(empty_hour, 0, message.channel.id)
             bot.session.add(empty_stat)
-            diff = diff - 1
+            diff -= 1
 
-    stat = MessageStat(newtime, bot.message_counter, message.channel.id)
+    # add hourly stats
+    stat = MessageStat(timestamp, bot.message_counter, message.channel.id)
     bot.session.add(stat)
     bot.session.commit()
