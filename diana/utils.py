@@ -101,7 +101,6 @@ def checkStats(bot, message):
     time_check = bot.time_check.floor('hour')
 
     timediff = int((timestamp - time_check).total_seconds() / 3600)
-    print(timediff)
 
     if timediff >= 1:
         return True
