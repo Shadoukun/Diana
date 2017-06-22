@@ -116,4 +116,6 @@ def convert_dates(tstamps, msgs):
     date_list.append([k for k in date_map.keys()])
     date_list.append([sum(v) for v in date_map.values()])
 
+    # remove current(ongoing) day from list.
+    date_list = date_list[-1]
     return date_list
