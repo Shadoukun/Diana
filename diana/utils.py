@@ -128,6 +128,6 @@ def addStats(bot, message):
             diff -= 1
 
     # add hourly stats
-    stat = MessageStat(timestamp, bot.message_counter, message.channel.id)
+    stat = MessageStat(timestamp.datetime, bot.message_counter, message.channel.id)
     bot.session.add(stat)
     bot.session.commit()
