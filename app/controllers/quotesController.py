@@ -86,3 +86,4 @@ def _getChannelQuotes(channel, user=None):
         quotes = Quote.query.filter_by(channel=channel).all()
 
     return channels, users, quotes
+
