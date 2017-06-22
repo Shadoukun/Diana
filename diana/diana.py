@@ -66,7 +66,8 @@ class Diana(commands.Bot):
 
         # check for trigger in message
         for word in message.split(" "):
-            if word.lower() in self.responses:
+            word = word.lower()
+            if word in self.responses:
                 resp = self.responses[word].split('\n')
 
                 # check if there are multiple possible responses
