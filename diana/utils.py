@@ -57,7 +57,7 @@ def makeMacro(macro):
 def checkStats(bot, message):
     """Check if enough has time has passed to add stats. Returns bool"""
     timestamp = arrow.get(message.timestamp).floor('hour')
-    time_check = bot.time_check.floor('hour')
+    time_check = arrow.get(bot.time_check).floor('hour')
 
     timediff = int((timestamp - time_check).total_seconds() / 3600)
 
@@ -71,7 +71,7 @@ def addStats(bot, message):
 
     # Calculate difference between last stats check and now.
     timestamp = arrow.get(message.timestamp).floor('hour')
-    time_check = bot.time_check.floor('hour')
+    time_check = arrow.get(bot.time_check).floor('hour')
 
     timediff = int((timestamp - time_check).total_seconds() / 3600)
 
