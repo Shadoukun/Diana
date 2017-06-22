@@ -13,10 +13,10 @@ async def update_macros_task(self):
         if macros:
             for macro in macros:
                 if macro.modified_flag == 1:
-                    utils.editMacro(self, macro)
                     macro.modified_flag = 0
                     self.session.commit()
-                    print("Changed Macro")
+
+                    await self.load_macro_commands(macro)
 
         # Runs every 20 seconds.
         await asyncio.sleep(20)

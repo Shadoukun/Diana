@@ -32,13 +32,13 @@
       <div class="card stats-card">
       </div> -->
       <div class="card">
-      <a href="/macros">New</a>
+      <a href="/macros/macros">New</a>
       </div>
 
       <h5>Macros</h5>
       <div class="card macrolist-card">
         {% for macro in macros %}
-          <a href="/macros/{{ macro.id }}">{{ macro.command }}</a>
+          <a href="/macros/macros/{{ macro.id }}">{{ macro.command }}</a>
         {% endfor %}
       </div>
     </div>

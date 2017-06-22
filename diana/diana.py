@@ -1,15 +1,18 @@
+import os
 import sys
+import re
 import asyncio
 import discord
-import re
+import glob
+import arrow
+import random
 from discord.ext import commands
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists
 import diana.utils as utils
 from diana.db import *
 from diana.tasks import *
-import arrow
+
 class Diana(commands.Bot):
 
     def __init__(self, *args, **kwargs):
@@ -24,8 +27,8 @@ class Diana(commands.Bot):
 
     async def on_ready(self):
 
-        utils.loadCommands(self)
-        utils.loadMacros(self)
+        await self.load_plugin_commands()
+        await self.load_macro_commands()
 
         print("Starting background tasks...", file=sys.stderr)
 
@@ -57,13 +60,60 @@ class Diana(commands.Bot):
 
     async def process_responses(self, message):
         """Triggers a macro response if message contains trigger."""
+
         channel = message.channel
         message = re.sub("[!@#$%^&*()[]{};:,./<>?\|`~-=_+]", " ", message.content)
 
+        # check for trigger in message
         for word in message.split(" "):
             if word in self.responses:
-                await self.send_message(channel, self.responses[word])
+                resp = self.responses[word].split('\n')
+
+                # check if there are multiple possible responses
+                if len(resp) > 1:
+                    resp = random.choice(resp)
+                else:
+                    resp = resp[0]
+
+                await self.send_message(channel, resp)
                 return
+
+    async def load_macro_commands(self, macro=None):
+        """Load/Reload macro commands from database
+            takes single macro to reload as optional arg"""
+
+        if macro is not None:
+            macros = [macro]
+        else:
+            macros = self.session.query(Macro).all()
+
+        if len(macros) < 1:
+            return
+
+        for m in macros:
+            if m.command in self.commands:
+                bot.remove_command(m.command)
+
+            func = utils.makeMacro(m)
+            cmd = commands.Command(name=m.command, callback=func, pass_context=True, no_pm=True)
+            bot.add_command(cmd)
+            return
+
+    async def load_plugin_commands(self):
+        """Load plugins from commands folder."""
+
+        print("Loading Plugins...")
+        
+        path = os.path.join(os.getcwd(), "diana", "commands", "*.py")
+        cmd_path = glob.glob(path, recursive=True)
+        for c in cmd_path:
+            # Skip commands/files that contain with __
+            if "__" in c:
+                continue
+
+            name = os.path.basename(c)[:-3]
+            bot.load_extension("diana.commands." + name)
+
 
 Session = sessionmaker(bind=engine)
 session = Session()

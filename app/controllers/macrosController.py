@@ -47,7 +47,6 @@ def edit_macros(operation, macro_id=None):
             flash(form.errors)
 
         if operation == 'new':
-            print("New Macro", file=sys.stderr)
             macro = Macro(form.command.data, form.response.data, 1)
             db.session.add(macro)
             db.session.commit()
@@ -92,7 +91,6 @@ def edit_responses(operation, resp_id=None):
             flash(form.errors)
 
         if operation == 'new':
-            print("New Response", file=sys.stderr)
             resp = MacroResponse(form.command.data, form.response.data)
             db.session.add(resp)
             db.session.commit()
