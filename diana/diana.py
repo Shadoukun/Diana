@@ -95,7 +95,7 @@ class Diana(commands.Bot):
             func = utils.makeMacro(m)
             cmd = commands.Command(name=m.command, callback=func, pass_context=True, no_pm=True)
             bot.add_command(cmd)
-            return
+
 
     async def load_plugin_commands(self):
         """Load plugins from commands folder."""
