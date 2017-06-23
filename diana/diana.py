@@ -24,7 +24,12 @@ class Diana(commands.Bot):
 
         self.responses = {}
 
+    @asyncio.coroutine
+    def on_command_error(self, exception, context):
+        # supress command exceptions
+        pass
 
+    @asyncio.coroutine
     async def on_ready(self):
 
         await self.load_plugin_commands()
@@ -42,6 +47,7 @@ class Diana(commands.Bot):
         print(self.user.id)
         print('------')
 
+    @asyncio.coroutine
     async def on_message(self, message):
         if message.author.bot:
             return
@@ -58,6 +64,7 @@ class Diana(commands.Bot):
             self.message_counter = 0
             self.time_check = datetime.utcnow()
 
+    @asyncio.coroutine
     async def process_responses(self, message):
         """Triggers a macro response if message contains trigger."""
         channel = message.channel
@@ -101,7 +108,7 @@ class Diana(commands.Bot):
         """Load plugins from commands folder."""
 
         print("Loading Plugins...")
-        
+
         path = os.path.join(os.getcwd(), "diana", "commands", "*.py")
         cmd_path = glob.glob(path, recursive=True)
         for c in cmd_path:
