@@ -60,15 +60,12 @@ class Diana(commands.Bot):
 
     async def process_responses(self, message):
         """Triggers a macro response if message contains trigger."""
-
         channel = message.channel
-        message = re.sub("[!@#$%^&*()[]{};:,./<>?\|`~-=_+]", " ", message.content)
-
+        message = str(message.content)
         # check for trigger in message
-        words = [w.lower() for w in message.split(" ")]
-        for word in words:
-            if word in self.responses:
-                resp = self.responses[word].split('\n')
+        for trigger in self.responses:
+            if trigger in message.lower():
+                resp = self.responses[trigger].split('\n')
 
                 # check if there are multiple possible responses
                 if len(resp) > 1:
