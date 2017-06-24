@@ -4,6 +4,7 @@ import re
 import asyncio
 import discord
 import glob
+from functools import reduce
 import arrow
 import random
 from discord.ext import commands
@@ -23,6 +24,7 @@ class Diana(commands.Bot):
         self.message_counter = 0
 
         self.responses = {}
+        self.reactions = {}
 
     @asyncio.coroutine
     def on_command_error(self, exception, context):
@@ -39,6 +41,7 @@ class Diana(commands.Bot):
 
         self.loop.create_task(update_macros_task(self))
         self.loop.create_task(add_responses(self))
+        self.loop.create_task(add_reactions(self))
         self.loop.create_task(add_users_task(self))
         self.loop.create_task(add_channels_task(self))
         self.loop.create_task(update_existing_users_task(self))
@@ -54,6 +57,7 @@ class Diana(commands.Bot):
 
         await self.process_commands(message)
         await self.process_responses(message)
+        await self.process_reactions(message)
 
         # number of messages since last check_stats
         self.message_counter += 1
@@ -82,6 +86,21 @@ class Diana(commands.Bot):
 
                 await self.send_message(channel, resp)
                 return
+
+    async def process_reactions(self, message):
+        """Triggers an automatic discord reaction on <message>"""
+
+        message = message
+        emojis = self.get_all_emojis()
+
+        for trigger in self.reactions:
+            if trigger in message.content.lower():
+
+                reactions = self.reactions[trigger].replace(':', '').split('\n')
+                reaction = reduce(lambda e, r: r if (e.name == r for r in reactions) else None, emojis)
+
+                if reaction:
+                    await self.add_reaction(message, reaction)
 
     async def load_macro_commands(self, macro=None):
         """Load/Reload macro commands from database

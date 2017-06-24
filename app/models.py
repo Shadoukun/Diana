@@ -145,3 +145,15 @@ class MacroResponse(db.Model):
     def __init__(self, trigger, response):
         self.trigger = trigger
         self.response = response
+
+class MacroReaction(db.Model):
+
+    __tablename__ = "reactions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    trigger = db.Column(db.String, unique=True)
+    reaction = db.Column(db.String)
+
+    def __init__(self, trigger, reaction):
+        self.trigger = trigger
+        self.reaction = reaction

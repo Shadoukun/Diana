@@ -158,7 +158,17 @@ class MacroResponse(Base):
         self.trigger = trigger
         self.response = response
 
+class MacroReaction(Base):
 
+    __tablename__ = "reactions"
+
+    id = Column(Integer, primary_key=True)
+    trigger = Column(String, unique=True)
+    reaction = Column(String)
+
+    def __init__(self, trigger, reaction):
+        self.trigger = trigger
+        self.reaction = reaction
 
 # ---- Helper Functions ----
 

@@ -88,3 +88,18 @@ async def add_responses(self):
 
         # Runs every 20 seconds.
         await asyncio.sleep(20)
+
+async def add_reactions(self):
+    """Add macro reactions from database"""
+
+    await self.wait_until_ready()
+    while not self.is_closed:
+        self.reactions.clear()
+        reactions = self.session.query(MacroReaction).all()
+        if reactions:
+            for r in reactions:
+                self.reactions[r.trigger] = r.reaction
+
+        # Runs every 20 seconds.
+        await asyncio.sleep(20)
+
