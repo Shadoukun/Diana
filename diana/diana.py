@@ -97,7 +97,10 @@ class Diana(commands.Bot):
             if trigger in message.content.lower():
 
                 reactions = self.reactions[trigger].replace(':', '').split('\n')
-                reaction = reduce(lambda e, r: r if (e.name == r for r in reactions) else None, emojis)
+                for r in reactions:
+                    for e in emojis:
+                        if r == e.name:
+                            reaction = e
 
                 if reaction:
                     await self.add_reaction(message, reaction)
