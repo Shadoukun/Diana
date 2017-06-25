@@ -18,7 +18,8 @@ $('#nav #macros').addClass('active');
 
     <nav id="macro_nav" class="nav nav-pills nav-fill">
         <a id="macros" class="text-sm-center nav-link" href="{{url_for('macros.macros')}}">Macros</a>
-        <a id="responses" class="text-sm-center nav-link" href="{{url_for('macros.responses')}}">Responses</a>
+        <a id="responses" class="text-sm-center nav-link" href="{{ url_for('macros.responses') }}">Responses</a>
+        <a id="reactions" class="text-sm-center nav-link" href="{{ url_for('macros.reactions') }}">Reactions</a>
     </nav>
 
     {% block macropage %}

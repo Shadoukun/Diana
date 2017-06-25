@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from diana import utils
 from diana.config import config
-from pprint import pprint
 
 class WolframAlpha:
 
@@ -16,7 +15,6 @@ class WolframAlpha:
         """: !? <expression>    | Use WolframAlpha"""
 
         message = utils.parse_message(ctx.message.content)
-        print(ctx.invoked_subcommand)
 
         if message:
             res = self.client.query(message, stream=True)
@@ -28,7 +26,6 @@ class WolframAlpha:
             for pod in podlist[0:3]:
                 embed.add_field(name=pod.title, value="`" + pod.text + "`", inline=False)
 
-            pprint(res.results)
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
 
@@ -36,7 +33,6 @@ class WolframAlpha:
     async def verbose_search():
 
         message = utils.parse_message(ctx.message.content)
-        print("verbose")
 
         if message:
             res = self.client.query(message, stream=True)
@@ -48,7 +44,6 @@ class WolframAlpha:
             for pod in podlist[0:3]:
                 embed.add_field(name=pod.title, value="`" + pod.text + "`", inline=False)
 
-            pprint(res.results)
 
             await self.bot.send_message(ctx.message.channel, embed=embed)
 

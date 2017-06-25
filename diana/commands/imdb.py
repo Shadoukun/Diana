@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import json
 import requests
-from pprint import pprint
 from diana import utils
 
 class IMDB:

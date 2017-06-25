@@ -2,7 +2,6 @@ import flickr_api
 import random
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
-import pprint
 from cachetools import TTLCache
 from discord.ext import commands
 from discord import Embed
@@ -25,7 +24,6 @@ class Shiba:
 
         shibas = flickr_api.Photo.search(per_page=500, tags='shiba dog')
         random.shuffle(shibas)
-        print(shibas[0]['id'])
         sizes = ['Large', 'Medium', 'Small', 'Original']
 
         while shibas[0]['id'] in self.cache.keys():

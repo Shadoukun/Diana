@@ -45,7 +45,7 @@ def create_app(config_filename, debug=False):
             })
 
     else:
-        
+
         log.setLevel(logging.INFO)
         app.logger.setLevel(logging.INFO)
 

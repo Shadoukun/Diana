@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
 
+
 engine = create_engine('sqlite:///database.db', echo=False)
 Base = declarative_base()
 
@@ -169,43 +170,3 @@ class MacroReaction(Base):
     def __init__(self, trigger, reaction):
         self.trigger = trigger
         self.reaction = reaction
-
-# ---- Helper Functions ----
-
-def create_database(base, engine):
-    """creates database"""
-
-    base.metadata.create_all(engine)
-
-
-def populate_database(session, bot):
-    '''
-    Takes sqlalchemy session and discord bot as args
-    and populates database with channels, users.
-    '''
-
-    # list of channels and users from database.
-    db_channels = [c.name for c in session.query(Channel.channelid).all()]
-    db_users = [u.name for u in session.query(User.userid).all()]
-
-    # List of channels and users from Discord.
-    bot_channels = [c for c in bot.get_all_channels()]
-    bot_users = [m for m in bot.get_all_members()]
-
-    # Add missing channels to database.
-    for channel in bot_channels:
-        if channel.id not in db_channels:
-            new_channel = Channel(channel.id, channel.name, str(channel.type))
-            session.add(new_channel)
-
-    # Add missing users to database.
-    for user in bot_users:
-        if user.id not in db_users:
-            new_user = User(user.id, user.name, user.display_name, user.avatar_url)
-            session.add(new_user)
-
-            # Add user to channels.
-            for channel in session.query(Channel):
-                channel.members.append(new_user)
-
-    session.commit()

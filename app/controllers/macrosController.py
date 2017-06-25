@@ -14,6 +14,7 @@ from app.models import Macro
 from app.models import Quote
 from app.models import FlaskUser
 from app.models import MacroResponse
+from app.models import MacroReaction
 
 blueprint = Blueprint('macros', __name__)
 
@@ -108,3 +109,48 @@ def edit_responses(operation, resp_id=None):
             db.session.commit()
 
     return redirect(url_for('macros.responses'))
+
+@blueprint.route('/macros/reactions')
+@blueprint.route('/macros/reactions/<int:react_id>')
+@login_required
+def reactions(react_id=None):
+    form = CommandForm(request.form)
+    reaction_list = MacroReaction.query.all()
+
+    if react_id:
+        reaction = MacroReaction.query.filter_by(id=react_id).first()
+        return render_template('macros/reactions.html', reactions=reaction_list, form=form, current_react=reaction)
+    else:
+        return render_template('macros/reactions.html', reactions=reaction_list, form=form)
+
+@login_required
+@blueprint.route('/macros/reactions/<int:react_id>/<string:operation>', methods=['POST', 'GET'])
+@blueprint.route('/macros/reactions/<string:operation>', methods=['POST', 'GET'])
+def edit_reactions(operation, react_id=None):
+    if request.method == 'POST':
+        form = CommandForm(request.form)
+
+        if not form.validate_on_submit():
+            flash(form.errors)
+
+        if operation == 'new':
+            reaction = MacroReaction(form.command.data, form.response.data)
+            db.session.add(reaction)
+            db.session.commit()
+            db.session.flush()
+
+        if operation == 'edit':
+            reaction = MacroReaction.query.filter_by(id=react_id).first()
+            reaction.trigger = form['command'].data
+            reaction.reaction = form['response'].data
+            db.session.commit()
+            db.session.flush()            
+
+    if (request.method == 'GET') and (react_id):
+
+        if operation == 'delete':
+            reaction.query.filter_by(id=react_id).delete()
+            db.session.commit()
+            db.session.flush()
+
+    return redirect(url_for('macros.reactions'))

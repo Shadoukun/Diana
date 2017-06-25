@@ -1,4 +1,4 @@
-from app import db  ## does not work here
+from app import db
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 

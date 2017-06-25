@@ -27,10 +27,8 @@ def login():
     by processing the form."""
 
     form = LoginForm()
-    print(form.hidden_tag, file=sys.stderr)
     if form.validate_on_submit():
         user = FlaskUser.query.filter_by(username=form.username.data).first()
-        print(user, file=sys.stderr)
         if user:
             if check_password_hash(user.password, form.password.data):
                 user.authenticated = True
@@ -38,7 +36,6 @@ def login():
                 db.session.commit()
                 login_user(user, remember=True)
                 return redirect(url_for("index.home"))
-    print(form.errors, file=sys.stderr)
     return render_template("index/login.html", form=form)
 
 

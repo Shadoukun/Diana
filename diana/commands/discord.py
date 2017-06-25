@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import discord.utils
-from pprint import pprint
 from difflib import get_close_matches
 from diana.config import config
 from diana.diana import session
@@ -20,10 +19,8 @@ class Discord:
         user = self.findUser(ctx)
         if user:
             avatar_url = user.avatar_url.split("?")[0]
-            print(avatar_url)
             embed = discord.Embed(title="Avatar: " + user.display_name, url=None)
             embed.set_image(url=avatar_url)
-            print(embed.to_dict())
             await self.bot.send_message(ctx.message.channel, embed=embed)
         else:
             await self.bot.send_message(ctx.message.channel, "No Results Found.")

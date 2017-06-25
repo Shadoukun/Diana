@@ -78,6 +78,10 @@ def addStats(bot, message):
     # If time difference is greater than one hour, add extra empty hours first.
     if timediff > 1:
         last_stat = bot.session.query(MessageStat).order_by(MessageStat.id.desc()).first()
+
+        if not last_stat:
+            return
+
         last_stat = arrow.get(last_stat.timestamp)
         diff = abs(timestamp - last_stat).total_seconds() / 3600
         diff -= 1
