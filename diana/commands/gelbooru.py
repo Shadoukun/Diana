@@ -7,6 +7,10 @@ from discord.ext import commands
 from cachetools import TTLCache
 from diana import utils
 import lxml
+import os
+import yaml
+from pathlib import Path
+from diana.config import config
 
 
 class Gelbooru:
@@ -18,47 +22,97 @@ class Gelbooru:
         self.url = "http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags="
         self.post_url = "http://gelbooru.com/index.php?page=post&s=view&id="
 
-        self.default_tags = [
-                             "+shota",
-                             "-straight_shota",
-                             "-trap",
-                             "-androgynous"
-                            ]
 
-    @commands.command(name='cum', pass_context=True, no_pm=True)
+        self.default_tags = None
+
+        self.tags_file = "./config/gelbooru_defaulttags.yaml"
+        if Path(self.tags_file).is_file():
+            with open(self.tags_file, 'r') as tagfile:
+                self.default_tags = yaml.load(tagfile)
+        else:
+            open(self.tags_file, 'x')
+
+        if self.default_tags is None:
+            self.default_tags = dict()
+
+    @commands.group(name='cum', pass_context=True, no_pm=True, invoke_without_command=True)
     async def gelbooru_search(self, ctx, *args):
         """: !cum <tags>        | Post a random image from Gelboorur"""
 
-        message = utils.parse_message(ctx.message.content,
-                                      tags=self.default_tags)
+        channel = str(ctx.message.channel)
+        if channel not in self.default_tags:
+            self.default_tags[channel] = ['shota']
+        
+        if ctx.invoked_subcommand is None:
+            print("test")
+            message = utils.parse_message(ctx.message.content, tags=self.default_tags[channel])
+            count = self.gelbooru_count(message)
 
-        count = self.gelbooru_count(message)
+            if count:
+                pageid = self.getRandomPage(count)
+            else:
+                msg = "No Results Found."
+                await self.bot.send_message(ctx.message.channel, msg)
+                return
 
-        if count:
-            pageid = self.getRandomPage(count)
+            # Search
+            r = self.session.get(self.url + message + "&pid=" + str(pageid))
+            soup = BeautifulSoup(r.content, "html.parser")
+            posts = soup.find_all("post")
+            post = await self.getRandomPost(posts, count)
 
-        else:
-            msg = "No Results Found."
-            await self.bot.send_message(ctx.message.channel, msg)
-            return
+            if post:
+                embed = self.create_embed(post)
+                await self.bot.send_message(ctx.message.channel, embed=embed)
+            else:
 
-        # Search
-        r = self.session.get(self.url + message + "&pid=" + str(pageid))
-        soup = BeautifulSoup(r.content, "html.parser")
-        posts = soup.find_all("post")
-        post = await self.getRandomPost(posts, count)
+                msg = "All images already seen, Try again later."
+                await self.bot.send_message(ctx.message.channel, msg)
+                return
 
-        if post:
+    @gelbooru_search.group(name="default_tags", pass_context=True, no_pm=True, invoke_without_command=True)
+    async def defaultTags(self, ctx):
+        if ctx.invoked_subcommand is None:
+            channel = str(ctx.message.channel)
+            await self.bot.send_message(ctx.message.channel, self.default_tags[channel])
 
-            embed = self.create_embed(post)
-            await self.bot.send_message(ctx.message.channel, embed=embed)
 
-        else:
+    @defaultTags.command(name="add", pass_context=True, no_pm=True)
+    async def blacklist_add(self, ctx):
+        #if str(ctx.message.author.id) not in admins:
+        #   return
 
-            msg = "All images already seen, Try again later."
-            await self.bot.send_message(ctx.message.channel, msg)
-            return
+        msg = ctx.message.content.split(' ')[3:]
+        channel = str(ctx.message.channel)
+        writefile = False
 
+        for tag in msg:
+            if tag not in self.default_tags[channel]:
+                self.default_tags[channel].append(tag)
+                writefile = True
+
+        if writefile:
+            with open(self.tags_file, 'w') as tagfile:
+                yaml.dump(self.default_tags, tagfile, default_flow_style=False)
+
+            await self.bot.send_message(ctx.message.channel, self.default_tags[channel])
+
+    @defaultTags.command(name="remove", pass_context=True, no_pm=True)
+    async def blacklist_remove(self, ctx):
+        msg = ctx.message.content.split(' ')[3:]
+        channel = str(ctx.message.channel)
+        writefile = False
+
+        for tag in msg:
+            if tag in self.default_tags[channel]:
+                self.default_tags[channel].remove(tag)
+                writefile = True
+
+        if writefile:
+            with open(self.default_tags, 'w') as tagfile:
+                yaml.dump(self.default_tags, tagfile, default_flow_style=False)
+
+            await self.bot.send_message(ctx.message.channel, self.default_tags[channel])
 
     async def getRandomPost(self, posts, count):
         # create list of posts not recently seen.

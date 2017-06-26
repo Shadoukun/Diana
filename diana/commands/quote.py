@@ -18,8 +18,7 @@ class Quote:
     def __init__(self, bot):
         self.bot = bot
 
-        Session = sessionmaker(bind=db.engine)
-        self.session = Session()
+        self.session = self.bot.session
 
     def _add_quote(self, message):
         # timestamp too precise.
@@ -95,8 +94,12 @@ class Quote:
     @quote.command(name="add", pass_context=True)
     async def quote_add(self, ctx):
         message = ctx.message.content.split(' ')[2:]
+
         # TODO: Readd admin check.
-        # if str(ctx.message.author.id) not in self.db['admins']:
+        admins = [a for a in self.session.query(db.Admin.userid).all()]
+        if str(ctx.message.author.id) not in admins:
+            return
+
             # return
 
         # if channel not included, use current channel
