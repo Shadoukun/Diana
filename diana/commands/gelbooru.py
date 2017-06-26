@@ -1,15 +1,17 @@
-import requests
+import os
 import random
+import requests
 import discord
+import yaml
+import lxml
+
+from pathlib import Path
 from bs4 import BeautifulSoup
 from functools import lru_cache
 from discord.ext import commands
 from cachetools import TTLCache
+
 from diana import utils
-import lxml
-import os
-import yaml
-from pathlib import Path
 from diana.config import config
 import diana.db as db
 
@@ -25,27 +27,16 @@ class Gelbooru:
 
 
         self.default_tags = None
-
         self.tags_file = "./config/gelbooru_defaulttags.yaml"
-        if Path(self.tags_file).is_file():
-            with open(self.tags_file, 'r') as tagfile:
-                self.default_tags = yaml.load(tagfile)
-        else:
-            open(self.tags_file, 'x')
-
-        if self.default_tags is None:
-            self.default_tags = dict()
+        self.loadDefaultTags()
 
     @commands.group(name='cum', pass_context=True, no_pm=True, invoke_without_command=True)
     async def gelbooru_search(self, ctx, *args):
         """: !cum <tags>        | Post a random image from Gelboorur"""
 
         channel = str(ctx.message.channel)
-        if channel not in self.default_tags:
-            self.default_tags[channel] = ['shota']
 
         if ctx.invoked_subcommand is None:
-            print("test")
             message = utils.parse_message(ctx.message.content, tags=self.default_tags[channel])
             count = self.gelbooru_count(message)
 
@@ -75,6 +66,7 @@ class Gelbooru:
     async def defaultTags(self, ctx):
         if ctx.invoked_subcommand is None:
             channel = str(ctx.message.channel)
+            self.checkDefaultTags(channel)
             await self.bot.send_message(ctx.message.channel, self.default_tags[channel])
 
 
@@ -87,8 +79,10 @@ class Gelbooru:
         if str(ctx.message.author.id) not in admins:
             return
 
+
         msg = ctx.message.content.split(' ')[3:]
         channel = str(ctx.message.channel)
+        self.checkDefaultTags(channel)
         writefile = False
 
         for tag in msg:
@@ -109,8 +103,10 @@ class Gelbooru:
         if str(ctx.message.author.id) not in admins:
             return
 
+
         msg = ctx.message.content.split(' ')[3:]
         channel = str(ctx.message.channel)
+        self.checkDefaultTags(channel)
         writefile = False
 
         for tag in msg:
@@ -123,6 +119,21 @@ class Gelbooru:
                 yaml.dump(self.default_tags, tagfile, default_flow_style=False)
 
             await self.bot.send_message(ctx.message.channel, self.default_tags[channel])
+
+    def loadDefaultTags(self):
+        if Path(self.tags_file).is_file():
+            with open(self.tags_file, 'r') as tagfile:
+                self.default_tags = yaml.load(tagfile)
+        else:
+            open(self.tags_file, 'x')
+
+        if self.default_tags is None:
+            self.default_tags = dict()
+
+    def checkDefaultTags(self, channel):
+        if channel not in self.default_tags:
+            self.default_tags[channel] = ['shota']
+
 
     async def getRandomPost(self, posts, count):
         # create list of posts not recently seen.
