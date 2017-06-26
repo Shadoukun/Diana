@@ -18,3 +18,4 @@ wordnik-py3
 libsass
 arrow
 alembic
+pyyaml

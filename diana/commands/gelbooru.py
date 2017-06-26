@@ -11,6 +11,7 @@ import os
 import yaml
 from pathlib import Path
 from diana.config import config
+import diana.db as db
 
 
 class Gelbooru:
@@ -42,7 +43,7 @@ class Gelbooru:
         channel = str(ctx.message.channel)
         if channel not in self.default_tags:
             self.default_tags[channel] = ['shota']
-        
+
         if ctx.invoked_subcommand is None:
             print("test")
             message = utils.parse_message(ctx.message.content, tags=self.default_tags[channel])
@@ -82,6 +83,10 @@ class Gelbooru:
         #if str(ctx.message.author.id) not in admins:
         #   return
 
+        admins = [a for a in self.bot.session.query(db.Admin.userid).all()]
+        if str(ctx.message.author.id) not in admins:
+            return
+
         msg = ctx.message.content.split(' ')[3:]
         channel = str(ctx.message.channel)
         writefile = False
@@ -99,6 +104,11 @@ class Gelbooru:
 
     @defaultTags.command(name="remove", pass_context=True, no_pm=True)
     async def blacklist_remove(self, ctx):
+
+        admins = [a for a in self.bot.session.query(db.Admin.userid).all()]
+        if str(ctx.message.author.id) not in admins:
+            return
+
         msg = ctx.message.content.split(' ')[3:]
         channel = str(ctx.message.channel)
         writefile = False
