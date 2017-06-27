@@ -74,6 +74,7 @@ class Discord:
         userid = user.id
 
         admins = [a for a in self.session.query(db.Admin.userid).all()]
+        admins = [a.userid for a in self.session.query(db.Admin.userid).all()]
         if (sender.id in admins) or (len(admins) is 0):
 
             new_admin = db.Admin(userid)
