@@ -97,6 +97,7 @@ class Quote:
 
         # TODO: Readd admin check.
         admins = [a for a in self.session.query(db.Admin.userid).all()]
+        admins = [a.userid for a in self.session.query(db.Admin.userid).all()]
         if str(ctx.message.author.id) not in admins:
             return
 
@@ -131,6 +132,9 @@ class Quote:
         # TODO: readd admin check.
         #if sender not in self.db['admins']:
         #    return
+        admins = [a.userid for a in self.session.query(db.Admin.userid).all()]
+        if str(ctx.message.author.id) not in admins:
+            return
 
         quotes = self.session.query(db.Quote).filter(db.Quote.channelid == channel.id)
        

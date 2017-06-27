@@ -76,6 +76,7 @@ class Gelbooru:
         #   return
 
         admins = [a for a in self.bot.session.query(db.Admin.userid).all()]
+        admins = [a.userid for a in self.bot.session.query(db.Admin.userid).all()]
         if str(ctx.message.author.id) not in admins:
             return
 
@@ -100,6 +101,7 @@ class Gelbooru:
     async def blacklist_remove(self, ctx):
 
         admins = [a for a in self.bot.session.query(db.Admin.userid).all()]
+        admins = [a.userid for a in self.bot.session.query(db.Admin.userid).all()]
         if str(ctx.message.author.id) not in admins:
             return
 
